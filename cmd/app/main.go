@@ -8,7 +8,7 @@ import (
 	"repeatly/internal/pkg/config"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/jackc/pgx/v5/stdlib" // Анонимный импорт драйвера
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 func main() {

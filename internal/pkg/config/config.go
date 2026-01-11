@@ -1,6 +1,7 @@
 package config
 
 import (
+	"log"
 	"os"
 
 	"gopkg.in/yaml.v3"
@@ -31,7 +32,21 @@ type Config struct {
 }
 
 func LoadConfig() (*Config, error) {
-	file, err := os.Open("config.yml")
+	env := os.Getenv("APP_ENV")
+	if env == "" {
+		env = "development"
+	}
+
+	var configPath string
+
+	if env == "development" {
+		configPath = "config/config.dev.yml"
+	} else {
+		configPath = "config/config.yml"
+	}
+
+	log.Printf("Загружаемый конфигурационный файл: %s", configPath)
+	file, err := os.Open(configPath)
 	if err != nil {
 		return nil, err
 	}
