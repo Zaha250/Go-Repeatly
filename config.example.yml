@@ -1,0 +1,14 @@
+app:
+  port: "8080"
+  log_level: "debug"
+
+postgres:
+  host: "localhost"
+  port: "5432"
+  user: "postgres"
+  password: "your_password"
+  db_name: "memo_bot_db"
+  ssl_mode: "disable"
+
+telegram:
+  token: "YOUR_TELEGRAM_BOT_TOKEN"
