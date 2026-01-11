@@ -2,11 +2,10 @@ package main
 
 import (
 	"log"
-	"net/http"
+	"repeatly/cmd/server"
 	"repeatly/internal/database"
 	"repeatly/internal/pkg/config"
 
-	"github.com/gin-gonic/gin"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/joho/godotenv"
 )
@@ -29,17 +28,8 @@ func main() {
 
 	log.Println("Успешное подключение к базе данных")
 
-	router := gin.Default()
-
-	// Тестовый эндпоинт, чтобы проверить, что сервер работает
-	router.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
-
-	log.Printf("Сервер запущен на порту %s", cfg.App.Port)
-	if err := router.Run(":" + cfg.App.Port); err != nil {
+	srv := server.NewServer(cfg, db)
+	if err := srv.Run(); err != nil {
 		log.Fatalf("Ошибка запуска сервера: %v", err)
 	}
 }

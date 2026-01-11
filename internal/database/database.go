@@ -6,7 +6,11 @@ import (
 	"repeatly/internal/pkg/config"
 )
 
-func ConnectDB(cfg *config.PostgresConfig) (*sql.DB, error) {
+type DB struct {
+	*sql.DB
+}
+
+func ConnectDB(cfg *config.PostgresConfig) (*DB, error) {
 	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		cfg.Host,
 		cfg.Port,
@@ -26,5 +30,5 @@ func ConnectDB(cfg *config.PostgresConfig) (*sql.DB, error) {
 		return nil, err
 	}
 
-	return db, nil
+	return &DB{db}, nil
 }
