@@ -1,35 +1,22 @@
 package main
 
 import (
+	"context"
 	"log"
-	"repeatly/cmd/server"
-	"repeatly/internal/database"
-	"repeatly/internal/pkg/config"
+	"repeatly/internal/app"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found, using environment variables")
-	}
+	ctx := context.Background()
 
-	cfg, err := config.LoadConfig()
+	application, err := app.NewApp(ctx)
 	if err != nil {
-		log.Fatalf("Не удалось загрузить файл конфигурации: %v", err)
+		log.Fatalf("Ошибка при инициализации приложения: %v", err)
 	}
 
-	db, err := database.ConnectDB(&cfg.Postgres)
-	if err != nil {
-		log.Fatalf("Не удалось подключиться к базе данных: %v", err)
-	}
-	defer db.Close()
-
-	log.Println("Успешное подключение к базе данных")
-
-	srv := server.NewServer(cfg, db)
-	if err := srv.Run(); err != nil {
-		log.Fatalf("Ошибка запуска сервера: %v", err)
+	if err := application.Run(ctx); err != nil {
+		log.Fatalf("Ошибка при запуске приложения: %v", err)
 	}
 }

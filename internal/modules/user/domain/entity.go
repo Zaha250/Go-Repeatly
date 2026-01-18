@@ -1,11 +1,15 @@
-package user
+package domain
 
-type Id int64
+import "time"
+
+type ID int64
+
 type User struct {
-	Id        Id
-	TgId      int64
-	Timezone  string
-	Name      string
-	UserName  string
-	CreatedAt string
+	ID         ID
+	TelegramID int64
+	FirstName  string
+	Username   string
+	Status     string
+	Timezone   string
+	CreatedAt  time.Time
 }

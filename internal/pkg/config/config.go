@@ -23,6 +23,7 @@ type PostgresConfig struct {
 
 type TelegramConfig struct {
 	Token string `yaml:"token"`
+	Debug bool   `yaml:"debug"`
 }
 
 type Config struct {
@@ -40,9 +41,9 @@ func LoadConfig() (*Config, error) {
 	var configPath string
 
 	if env == "development" {
-		configPath = "config/config.dev.yml"
+		configPath = "internal/config/config.dev.yml"
 	} else {
-		configPath = "config/config.yml"
+		configPath = "internal/config/config.yml"
 	}
 
 	log.Printf("Загружаемый конфигурационный файл: %s", configPath)

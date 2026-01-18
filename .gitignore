@@ -1,4 +1,4 @@
 .idea
 .env
-config/config.yml
-config/config.dev.yml
+internal/config/config.yml
+internal/config/config.dev.yml

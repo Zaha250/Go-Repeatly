@@ -25,9 +25,9 @@ func NewServer(cfg *config.Config, db *database.DB) *Server {
 func (s *Server) setupRoutes() *gin.Engine {
 	router := gin.Default()
 
-	router.GET("/ping", func(c *gin.Context) {
+	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
+			"message": "ok",
 		})
 	})
 
