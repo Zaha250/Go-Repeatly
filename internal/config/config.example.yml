@@ -12,3 +12,4 @@ postgres:
 
 telegram:
   token: "YOUR_TELEGRAM_BOT_TOKEN"
+  debug: true
