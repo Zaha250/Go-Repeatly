@@ -49,3 +49,11 @@ func (s *UserService) RegisterIfNotExist(ctx context.Context, tgUser *domain.Use
 	}
 	return createdUser, true, nil
 }
+
+func (s *UserService) FindByTelegramID(ctx context.Context, telegramID int64) (*domain.User, error) {
+	user, err := s.userRepo.FindByTelegramID(ctx, telegramID)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}

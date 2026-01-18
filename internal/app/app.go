@@ -4,15 +4,18 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"repeatly/internal/database"
 	"repeatly/internal/delivery/telegram"
 	"repeatly/internal/pkg/telegram"
+	"repeatly/internal/server"
 	"syscall"
 
 	"github.com/joho/godotenv"
 
+	userHTTP "repeatly/internal/modules/user/delivery/http"
 	userPostgres "repeatly/internal/modules/user/storage/postgres"
 	userUsecase "repeatly/internal/modules/user/usecase"
 	"repeatly/internal/pkg/config"
@@ -24,6 +27,7 @@ type App struct {
 	db         *database.DB
 	bot        telegramClient.BotClient
 	botHandler *telegram.Handler
+	httpServer *http.Server
 }
 
 // NewApp создает и инициализирует новый экземпляр приложения.
@@ -56,14 +60,24 @@ func NewApp(ctx context.Context) (*App, error) {
 	userRepo := userPostgres.NewUserRepository(db)
 	userService := userUsecase.NewUserService(userRepo)
 
-	// 6. Создание обработчика Telegram
+	// 6. Создание обработчиков
 	botHandler := telegram.NewHandler(userService)
+	userHandler := userHTTP.NewUserHandler(userService)
+
+	routerFactory := server.NewRouterFactory(userHandler)
+	router := routerFactory.InitRouter()
+
+	httpServer := &http.Server{
+		Addr:    ":" + cfg.App.Port,
+		Handler: router,
+	}
 
 	return &App{
 		cfg:        cfg,
 		db:         db,
 		bot:        bot,
 		botHandler: botHandler,
+		httpServer: httpServer,
 	}, nil
 }
 
@@ -73,11 +87,15 @@ func (a *App) Run(ctx context.Context) error {
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
+	go func() {
+		log.Printf("Сервер запущен на порту %s", a.cfg.App.Port)
+		if err := a.httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Ошибка при запуске HTTP сервера: %v", err)
+		}
+	}()
+
 	// Запускаем слушателя Telegram в отдельной горутине
 	go a.runTelegramListener(ctx)
-
-	// TODO: Здесь же можно запустить HTTP-сервер, если он нужен
-	// go a.runHttpServer(ctx)
 
 	// Ждем сигнала завершения
 	<-ctx.Done()

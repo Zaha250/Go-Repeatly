@@ -1,42 +1,33 @@
 package server
 
 import (
-	"log"
 	"net/http"
-	"repeatly/internal/pkg/config"
-
-	"repeatly/internal/database"
+	userHTTP "repeatly/internal/modules/user/delivery/http" // Импортируем наш HTTP-хендлер
 
 	"github.com/gin-gonic/gin"
 )
 
-type Server struct {
-	cfg *config.Config
-	db  *database.DB
+// RouterFactory инкапсулирует создание роутера и регистрацию маршрутов.
+type RouterFactory struct {
+	userHandler *userHTTP.UserHandler
 }
 
-func NewServer(cfg *config.Config, db *database.DB) *Server {
-	return &Server{
-		cfg: cfg,
-		db:  db,
+func NewRouterFactory(userHandler *userHTTP.UserHandler) *RouterFactory {
+	return &RouterFactory{
+		userHandler: userHandler,
 	}
 }
 
-func (s *Server) setupRoutes() *gin.Engine {
+func (f *RouterFactory) InitRouter() *gin.Engine {
 	router := gin.Default()
 
-	router.GET("/health", func(c *gin.Context) {
+	router.GET("/api/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"message": "ok",
+			"status": "ok",
 		})
 	})
 
-	return router
-}
+	f.userHandler.RegisterRoutes(router)
 
-func (s *Server) Run() error {
-	router := s.setupRoutes()
-	port := s.cfg.App.Port
-	log.Printf("Сервер запущен на порту %s", port)
-	return router.Run(":" + port)
+	return router
 }
